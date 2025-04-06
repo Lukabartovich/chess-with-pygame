@@ -85,3 +85,12 @@ class Queen(Piece):
         self.color=color
         self.moveset = """x      x      x/ x     x     x /  x    x    x  /   x   x   x   /    x  x  x    /     x x x     /      xxx      /xxxxxxxpxxxxxxx/      xxx      /     x x x     /    x  x  x    /   x   x   x   /  x    x    x  / x     x     x /x      x      x/"""
         self.cost = 9
+        
+class King(Piece):
+    def __init__(self, color='w'):
+        super().__init__()
+        
+        self.image = pygame.image.load(f'images/{color}_King.png')
+        self.color=color
+        self.moveset = 'xxx/xpx/xxx'
+        self.cost = 10000

@@ -12,31 +12,55 @@ black_squares = (6, 148, 39)
 white_squares = (38, 201, 76)
 highlight = 100
 
-test_pawn = Pawn('b')
-test_pawn.locate((1, 1), size)
-
-pawn = Pawn('b')
-pawn.locate((0, 2), size)
-
-pawn2 = Pawn('w')
-pawn2.locate((1, 3), size)
-
-knight = Knight('w')
-knight.locate((2, 3), size)
-
-queen = Queen('w')
-queen.locate((5, 5), size)
-
-b = Bishop('b')
-b.locate((6,7), size)
-
-r = Rook('w')
-r.locate((3, 7), size)
-
 selected_piece = None
 click = False
-
+    
 move = 'w'
+
+def load_game(string):
+    global move
+    
+    s, move = string.split(' ')
+    lines = s.split('/')
+    for i, line in enumerate(lines):
+        skip = 0
+        for j, char in enumerate(line):
+            if skip >0:
+                skip -= 1
+                continue
+            if char.isdigit():
+                skip = int(char)
+            else:
+                if char == 'p':
+                    piece = Pawn('b')
+                if char == 'b':
+                    piece = Bishop('b')
+                if char == 'n':
+                    piece = Knight('b')
+                if char == 'r':
+                    piece = Rook('b')
+                if char == 'q':
+                    piece = Queen('b')
+                if char == 'k':
+                    piece = King('b')
+                    
+                if char == 'P':
+                    piece = Pawn('w')
+                if char == 'B':
+                    piece = Bishop('w')
+                if char == 'N':
+                    piece = Knight('w')
+                if char == 'R':
+                    piece = Rook('w')
+                if char == 'Q':
+                    piece = Queen('w')
+                if char == 'K':
+                    piece = King('w')
+                    
+                
+                piece.locate((j, i), size)
+
+load_game('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
 
 run = True
 while run:
@@ -131,19 +155,36 @@ while run:
             remove_directions = []
             for piece in pieces:
                 if piece.position in selected_positions:
-                    if len(selected_piece.capture_moves)>0:
+                    if len(selected_piece.capture_moves)>0 or piece.color == selected_piece.color:
                         index = selected_positions.index(piece.position)
                         selected_positions.pop(index)
-                    dir = (piece.position[0]-selected_piece.position[0], piece.position[1]-selected_piece.position[1])
-                    dir = (-1 if dir[0] < 0 else 1, -1 if dir[1] < 0 else 1)
+                    dir = [piece.position[0]-selected_piece.position[0], piece.position[1]-selected_piece.position[1]]
+                    if dir[0] < 0:
+                        dir[0] = -1
+                    elif dir[0] > 0:
+                        dir[0] = 1
+                        
+                    if dir[1] < 0:
+                        dir[1] = -1
+                    elif dir[1] > 0:
+                        dir[1] = 1
                     remove_directions.append((dir, piece.position))
                     blocking_pos.append(piece.position)
                     
             for dir, values in remove_directions:
                 for pos in selected_positions:
                     if pos not in blocking_pos:
-                        d = (pos[0]-selected_piece.position[0], pos[1]-selected_piece.position[1])
-                        d = (-1 if dir[0] < 0 else 1, -1 if dir[1] < 0 else 1)
+                        d = [pos[0]-selected_piece.position[0], pos[1]-selected_piece.position[1]]
+                        if d[0] < 0:
+                            d[0] = -1
+                        elif d[0] > 0:
+                            d[0] = 1
+                            
+                        if d[1] < 0:
+                            d[1] = -1
+                        elif d[1] > 0:
+                            d[1] = 1
+                            
                         if d == dir:
                             r = True
                             if dir[0] == 1:
