@@ -2,7 +2,6 @@ import pygame
 import time
 from pieces import *
 
-
 pygame.init()
 
 size = 64
@@ -16,11 +15,11 @@ highlight = 100
 test_pawn = Pawn('b')
 test_pawn.locate((1, 1), size)
 
-pawn = Pawn('w')
+pawn = Pawn('b')
 pawn.locate((0, 2), size)
 
 pawn2 = Pawn('w')
-pawn2.locate((1, 2), size)
+pawn2.locate((1, 3), size)
 
 knight = Knight('w')
 knight.locate((2, 3), size)
@@ -69,7 +68,7 @@ while run:
                     
                     #check for captures
                     for piece in pieces:
-                        if piece.position == p:
+                        if piece.position == p and piece.color != selected_piece.color:
                             if len(selected_piece.capture_moves):
                                 if p in selected_piece.capture_moves:
                                     pieces.remove(piece)
@@ -116,6 +115,40 @@ while run:
                     
         selected_piece.allowed_moves = selected_positions
         selected_piece.capture_moves = capture_moves
+        
+        if selected_piece.can_be_blocked==False:
+            remove_directions = []
+            for piece in pieces:
+                if piece.position in selected_positions:
+                    if len(selected_piece.capture_moves)>0:
+                        index = selected_positions.index(piece.position)
+                        selected_positions.pop(index)
+                    dir = (piece.position[0]-selected_piece.position[0], piece.position[1]-selected_piece.position[1])
+                    dir = (-1 if dir[0] < 0 else 1, -1 if dir[1] < 0 else 1)
+                    remove_directions.append((dir, piece.position))
+                    
+            for dir, values in remove_directions:
+                for pos in selected_positions:
+                    d = (pos[0]-selected_piece.position[0], pos[1]-selected_piece.position[1])
+                    d = (-1 if dir[0] < 0 else 1, -1 if dir[1] < 0 else 1)
+                    if d == dir:
+                        r = True
+                        if dir[0] == 1:
+                            if values[0] > pos[0]:
+                                r = False
+                        else:
+                            if values[0] < pos[0]:
+                                r = False
+                                
+                        if dir[1] == 1:
+                            if values[1] > pos[1]:
+                                r = False
+                        else:
+                            if values[1] < pos[1]:
+                                r = False
+                        if r:
+                            index = selected_positions.index(pos)
+                            selected_positions.pop(index)
                     
         for s in selected_positions:
             n = s[0]+s[1]
@@ -129,10 +162,10 @@ while run:
             
             rect = pygame.Rect(s[0]*size, s[1]*size, size, size)
             pygame.draw.rect(window, color, rect)
-            
+
         for s in capture_moves:
             for piece in pieces:
-                if piece.position == s:
+                if piece.position == s and piece.color != selected_piece.color:
                     n = s[0]+s[1]
                     c = 1 if n%2==0 else 0
                     

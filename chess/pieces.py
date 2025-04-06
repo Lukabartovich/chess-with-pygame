@@ -14,6 +14,7 @@ class Piece(pygame.sprite.Sprite):
         self.cost = 1
         self.allowed_moves = []
         self.capture_moves = []
+        self.can_be_blocked = False
         
         pieces.add(self)
         
@@ -54,3 +55,4 @@ class Knight(Piece):
         self.image = pygame.image.load(f'images/{color}_Knight.png')
         self.color=color
         self.moveset = ' x x /x   x/  p  /x   x/ x x '
+        self.can_be_blocked = True
