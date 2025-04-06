@@ -43,6 +43,13 @@ class Pawn(Piece):
         else:
             if self.position[1] == 1:
                 self.moveset = "p/x/x"
-                print('pawn can move 2')
             else:
                 self.moveset = "p/x"
+                
+class Knight(Piece):
+    def __init__(self, color='w'):
+        super().__init__()
+        
+        self.image = pygame.image.load(f'images/{color}_Knight.png')
+        self.color=color
+        self.moveset = ' x x /x   x/  p  /x   x/ x x '

@@ -16,8 +16,8 @@ highlight = 100
 test_pawn = Pawn('b')
 test_pawn.locate((1, 1), size)
 
-test_pawn2 = Pawn('b')
-test_pawn2.locate((2, 2), size)
+knight = Knight('w')
+knight.locate((3, 2), size)
 
 selected_piece = None
 click = False
@@ -41,16 +41,27 @@ while run:
             step = not step
         step = not step
     
+    #the click check
+    if pygame.mouse.get_pressed()[0]==False and click==True:
+        click = False
+    
     #select a piece
     mouse_point = pygame.mouse.get_pos()
     if pygame.mouse.get_pressed()[0] and click == False:
         clicked = False
-        click = True
         for piece in pieces:
-            if piece.rect.collidepoint(mouse_point) and pygame.mouse.get_pressed()[0] and clicked == False:
+            if piece.rect.collidepoint(mouse_point) and pygame.mouse.get_pressed()[0] and clicked == False and click == False:
                 clicked=True
-                selected_piece = piece
-                print('selected')
+                
+                if selected_piece: #check for captures
+                    if piece.position in selected_piece.allowed_moves:
+                        selected_piece.locate(piece.position, size)
+                        selected_piece=None
+                        pieces.remove(piece)
+                    else:
+                        selected_piece = piece
+                else:
+                    selected_piece = piece
                 
         if clicked == False:
             if selected_piece:
@@ -60,12 +71,11 @@ while run:
                 else:
                     pass
             selected_piece = None
+            
+        click = True
     
-    #the click check and if the move is allowed
-    if pygame.mouse.get_pressed()[0]==False and click==True:
-        click = False
-    
-    if selected_piece: #check for allowed moves and highlight them
+    #check for allowed moves and highlight them
+    if selected_piece:
         moves = selected_piece.moveset
         pos = selected_piece.position
         
@@ -84,8 +94,7 @@ while run:
         for i, line in enumerate(lines):
             for j, char in enumerate(line):
                 if char == 'x':
-                    position = (j+piece_row+pos[0], i+piece_line+pos[1])
-                    #print(position)
+                    position = (j+pos[0]-piece_row, i+pos[1]-piece_line)
                     selected_positions.append(position)
                     
         selected_piece.allowed_moves = selected_positions
