@@ -27,6 +27,12 @@ knight.locate((2, 3), size)
 queen = Queen('w')
 queen.locate((5, 5), size)
 
+b = Bishop('b')
+b.locate((6,7), size)
+
+r = Rook('w')
+r.locate((3, 7), size)
+
 selected_piece = None
 click = False
 
@@ -119,6 +125,7 @@ while run:
         selected_piece.allowed_moves = selected_positions
         selected_piece.capture_moves = capture_moves
         
+        #making sure pieces can jump through other pieces
         blocking_pos = []
         if selected_piece.can_be_blocked==False:
             remove_directions = []

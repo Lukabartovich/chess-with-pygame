@@ -48,7 +48,16 @@ class Pawn(Piece):
                 self.moveset = " p /cxc/ x "
             else:
                 self.moveset = " p /cxc"
-                
+
+class Bishop(Piece):
+    def __init__(self, color='w'):
+        super().__init__()
+        
+        self.image = pygame.image.load(f'images/{color}_Bishop.png')
+        self.color=color
+        self.moveset = 'x             x/ x           x /  x         x  /   x       x   /    x     x    /     x   x     /      x x      /       p       /      x x      /     x   x     /    x     x    /   x       x   /  x         x  / x           x /x             x/'
+        self.cost = 3
+
 class Knight(Piece):
     def __init__(self, color='w'):
         super().__init__()
@@ -59,11 +68,20 @@ class Knight(Piece):
         self.can_be_blocked = True
         self.cost = 3
         
+class Rook(Piece):
+    def __init__(self, color='w'):
+        super().__init__()
+        
+        self.image = pygame.image.load(f'images/{color}_Rook.png')
+        self.color=color
+        self.moveset = '       x       /       x       /       x       /       x       /       x       /       x       /       x       /xxxxxxxpxxxxxxx/       x       /       x       /       x       /       x       /       x       /       x       /       x       /'
+        self.cost = 3
+        
 class Queen(Piece):
     def __init__(self, color='w'):
         super().__init__()
         
         self.image = pygame.image.load(f'images/{color}_Queen.png')
         self.color=color
-        self.moveset = 'x      x      x/ x     x     x /  x    x    x  /   x   x   x   /    x  x  x    /     x x x     /      xxx      /xxxxxxxpxxxxxxx/      xxx      /     x x x     /    x  x  x    /   x   x   x   /  x    x    x  / x     x     x /x      x      x/'
+        self.moveset = """x      x      x/ x     x     x /  x    x    x  /   x   x   x   /    x  x  x    /     x x x     /      xxx      /xxxxxxxpxxxxxxx/      xxx      /     x x x     /    x  x  x    /   x   x   x   /  x    x    x  / x     x     x /x      x      x/"""
         self.cost = 9
