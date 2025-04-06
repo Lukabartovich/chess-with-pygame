@@ -13,6 +13,7 @@ class Piece(pygame.sprite.Sprite):
         self.position = (0, 0)
         self.cost = 1
         self.allowed_moves = []
+        self.capture_moves = []
         
         pieces.add(self)
         
@@ -37,14 +38,14 @@ class Pawn(Piece):
     def update_moveset(self):
         if self.color == 'w':
             if self.position[1] == 6:
-                self.moveset = "x/x/p"
+                self.moveset = " x /cxc/ p "
             else:
-                self.moveset = "x/p"
+                self.moveset = "cxc/ p "
         else:
             if self.position[1] == 1:
-                self.moveset = "p/x/x"
+                self.moveset = " p /cxc/ x "
             else:
-                self.moveset = "p/x"
+                self.moveset = " p /cxc"
                 
 class Knight(Piece):
     def __init__(self, color='w'):

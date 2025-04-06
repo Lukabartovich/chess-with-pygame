@@ -16,11 +16,19 @@ highlight = 100
 test_pawn = Pawn('b')
 test_pawn.locate((1, 1), size)
 
+pawn = Pawn('w')
+pawn.locate((0, 2), size)
+
+pawn2 = Pawn('w')
+pawn2.locate((1, 2), size)
+
 knight = Knight('w')
-knight.locate((3, 2), size)
+knight.locate((2, 3), size)
 
 selected_piece = None
 click = False
+
+move = 'b'
 
 run = True
 while run:
@@ -45,36 +53,41 @@ while run:
     if pygame.mouse.get_pressed()[0]==False and click==True:
         click = False
     
-    #select a piece
+    #select a piece, check for captures and move pieces
     mouse_point = pygame.mouse.get_pos()
     if pygame.mouse.get_pressed()[0] and click == False:
         clicked = False
         for piece in pieces:
-            if piece.rect.collidepoint(mouse_point) and pygame.mouse.get_pressed()[0] and clicked == False and click == False:
+            if piece.rect.collidepoint(mouse_point) and clicked == False and move == piece.color:
                 clicked=True
-                
-                if selected_piece: #check for captures
-                    if piece.position in selected_piece.allowed_moves:
-                        selected_piece.locate(piece.position, size)
-                        selected_piece=None
-                        pieces.remove(piece)
-                    else:
-                        selected_piece = piece
-                else:
-                    selected_piece = piece
+                selected_piece = piece
                 
         if clicked == False:
             if selected_piece:
                 p = (mouse_point[0]//size, mouse_point[1]//size)
-                if p in selected_piece.allowed_moves:
+                if p in selected_piece.allowed_moves or p in selected_piece.capture_moves:
+                    
+                    #check for captures
+                    for piece in pieces:
+                        if piece.position == p:
+                            if len(selected_piece.capture_moves):
+                                if p in selected_piece.capture_moves:
+                                    pieces.remove(piece)
+                            else:
+                                pieces.remove(piece)
+                                
                     selected_piece.locate(p, size)
+                    if move == 'w':
+                        move = 'b'
+                    else:
+                        move = 'w'
                 else:
                     pass
             selected_piece = None
             
         click = True
     
-    #check for allowed moves and highlight them
+    #check for allowed moves and capture moves and highlight them
     if selected_piece:
         moves = selected_piece.moveset
         pos = selected_piece.position
@@ -91,13 +104,18 @@ while run:
                 
                 
         selected_positions = []
+        capture_moves = []
         for i, line in enumerate(lines):
             for j, char in enumerate(line):
                 if char == 'x':
                     position = (j+pos[0]-piece_row, i+pos[1]-piece_line)
                     selected_positions.append(position)
+                if char == 'c':
+                    position = (j+pos[0]-piece_row, i+pos[1]-piece_line)
+                    capture_moves.append(position)
                     
         selected_piece.allowed_moves = selected_positions
+        selected_piece.capture_moves = capture_moves
                     
         for s in selected_positions:
             n = s[0]+s[1]
@@ -111,6 +129,21 @@ while run:
             
             rect = pygame.Rect(s[0]*size, s[1]*size, size, size)
             pygame.draw.rect(window, color, rect)
+            
+        for s in capture_moves:
+            for piece in pieces:
+                if piece.position == s:
+                    n = s[0]+s[1]
+                    c = 1 if n%2==0 else 0
+                    
+                    if c==1:
+                        color = (white_squares[0], white_squares[1], white_squares[2]+highlight)
+                    else:
+                        color = (black_squares[0], black_squares[1], black_squares[2]+highlight)
+                    
+                    
+                    rect = pygame.Rect(s[0]*size, s[1]*size, size, size)
+                    pygame.draw.rect(window, color, rect)
     
     pieces.update()
     pieces.draw(window)
