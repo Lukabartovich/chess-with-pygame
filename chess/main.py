@@ -83,7 +83,9 @@ def make_dirs(piece, selected_piece):
     
     return dir
 
-load_game('2n1Q3/Ppppp3/pPP5/8/4P1p1/5B2/4p1P1/8 w')
+#basic: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w
+#testing: 2n1Q3/Ppppp3/pPP5/8/4P1p1/5B2/4p1P1/8 w
+load_game('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
 
 run = True
 while run:
@@ -171,13 +173,15 @@ while run:
                     position = (j+pos[0]-piece_row, i+pos[1]-piece_line)
                     capture_moves.append(position)
         
-        dirs_blocking = []
-        values = []
-        has_cp = bool(len(selected_piece.capture_moves)>0)
+        
+        #Check if the currently selected moves are allowed by the rules of chess
         if selected_piece.can_be_blocked == False:
+            dirs_blocking = []
+            values = []
+            has_cp = bool(len(selected_piece.capture_moves)>0)
             for piece in pieces:
                 if piece.position in selected_positions:
-                    if piece.color == selected_piece.color:
+                    if piece.color == selected_piece.color or has_cp:
                         selected_positions.remove(piece.position)
                         
                     dir = make_dirs(piece, selected_piece)
@@ -209,18 +213,24 @@ while run:
                     else:
                         if value not in s:
                             s.append(value)
-        l = []
-        for p in s:
-            if p not in l:
-                l.append(p)
-                
-        s = l
-        li = []
-        for p in selected_positions:
-            if p not in l:
-                li.append(p)
-        selected_positions=li
+                            
+            # THIS IS A MESS OF A SORT SYSTEM< BUT IT WOTKS :D
+            l = []
+            for p in s:
+                if p not in l:
+                    l.append(p)
                     
+            s = l
+            li = []
+            for p in selected_positions:
+                if p not in l:
+                    li.append(p)
+                    
+            selected_positions=li
+        else:
+            for piece in pieces:
+                if piece.position in selected_positions and piece.color == selected_piece.color:
+                    selected_positions.remove(piece.position)
                     
         selected_piece.allowed_moves = selected_positions
         selected_piece.capture_moves = capture_moves
