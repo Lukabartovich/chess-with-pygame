@@ -65,7 +65,25 @@ def load_game(string):
             if char != ' ':
                 piece.locate((j, i), size)
 
-load_game('8/8/2ppp3/2pBp3/2ppp3/8/8/8 w')
+def make_dirs(piece, selected_piece):
+    dir = [piece.position[0]-selected_piece.position[0], piece.position[1]-selected_piece.position[1]]
+    if dir[0] < 0:
+        dir[0] = -1
+    elif dir[0] > 0:
+        dir[0] = 1
+    else:
+        dir[0] = 0
+        
+    if dir[1] < 0:
+        dir[1] = -1
+    elif dir[1] > 0:
+        dir[1] = 1
+    else:
+        dir[1] = 0
+    
+    return dir
+
+load_game('2n1Q3/Ppppp3/pPP5/8/4P1p1/5B2/4p1P1/8 w')
 
 run = True
 while run:
@@ -89,6 +107,7 @@ while run:
     #the click check
     if pygame.mouse.get_pressed()[0]==False and click==True:
         click = False
+        clicked = False
     
     #select a piece, check for captures and move pieces
     mouse_point = pygame.mouse.get_pos()
@@ -120,6 +139,7 @@ while run:
                         move = 'w'
                 else:
                     pass
+                    
             selected_piece = None
             
         click = True
@@ -150,72 +170,60 @@ while run:
                 if char == 'c':
                     position = (j+pos[0]-piece_row, i+pos[1]-piece_line)
                     capture_moves.append(position)
+        
+        dirs_blocking = []
+        values = []
+        has_cp = bool(len(selected_piece.capture_moves)>0)
+        if selected_piece.can_be_blocked == False:
+            for piece in pieces:
+                if piece.position in selected_positions:
+                    if piece.color == selected_piece.color:
+                        selected_positions.remove(piece.position)
+                        
+                    dir = make_dirs(piece, selected_piece)
+                    dirs_blocking.append([dir, piece.position])
+                        
+            for dir, pos in dirs_blocking:
+                if dir[0] != 0:
+                    row_x = [i for i in range(pos[0]+dir[0], 9*dir[0], dir[0])]
+                else:
+                    row_x = [pos[0] for i in range(9)]
+                    
+                if dir[1] != 0:
+                    row_y = [i for i in range(pos[1]+dir[1], 9*dir[1], dir[1])]
+                else:
+                    row_y = [pos[1] for i in range(9)]
+                    
+                if len(row_x) > len(row_y):
+                    row_x = row_x[:len(row_y)]
+                elif len(row_y) > len(row_x):
+                    row_y = row_y[:len(row_x)]
+                    
+                for i in range(len(row_x)):
+                    values.append((row_x[i], row_y[i]))
+            s = []
+            for moves in selected_positions:
+                for value in values:
+                    if moves[0] == value[0] and moves[1] == value[1]:
+                        pass
+                    else:
+                        if value not in s:
+                            s.append(value)
+        l = []
+        for p in s:
+            if p not in l:
+                l.append(p)
+                
+        s = l
+        li = []
+        for p in selected_positions:
+            if p not in l:
+                li.append(p)
+        selected_positions=li
+                    
                     
         selected_piece.allowed_moves = selected_positions
         selected_piece.capture_moves = capture_moves
-        
-        #making sure pieces can jump through other pieces
-        blocking_pos = []
-        if selected_piece.can_be_blocked==False:
-            remove_directions = []
-            for piece in pieces:
-                if piece.position in selected_positions:
-                    if len(selected_piece.capture_moves)>0 or piece.color == selected_piece.color:
-                        index = selected_positions.index(piece.position)
-                        selected_positions.pop(index)
-                    dir = [piece.position[0]-selected_piece.position[0], piece.position[1]-selected_piece.position[1]]
-                    if dir[0] < 0:
-                        dir[0] = -1
-                    elif dir[0] > 0:
-                        dir[0] = 1
-                    else:
-                        dir[0] = 0
-                        
-                    if dir[1] < 0:
-                        dir[1] = -1
-                    elif dir[1] > 0:
-                        dir[1] = 1
-                    else:
-                        dir[1] = 0
-                    remove_directions.append((dir, piece.position))
-                    blocking_pos.append(piece.position)
-                    
-            for dir, values in remove_directions:
-                for pos in selected_positions:
-                    if pos not in blocking_pos:
-                        d = [pos[0]-selected_piece.position[0], pos[1]-selected_piece.position[1]]
-                        if d[0] < 0:
-                            d[0] = -1
-                        elif d[0] > 0:
-                            d[0] = 1
-                        else:
-                            d[0] = 0
-                            
-                        if d[1] < 0:
-                            d[1] = -1
-                        elif d[1] > 0:
-                            d[1] = 1
-                        else:
-                            d[1] = 0
-                            
-                        if d == dir:
-                            r = True
-                            if dir[0] == 1:
-                                if values[0] > pos[0]:
-                                    r = False
-                            else:
-                                if values[0] < pos[0]:
-                                    r = False
-                                    
-                            if dir[1] == 1:
-                                if values[1] > pos[1]:
-                                    r = False
-                            else:
-                                if values[1] < pos[1]:
-                                    r = False
-                            if r:
-                                index = selected_positions.index(pos)
-                                selected_positions.pop(index)
                     
         for s in selected_positions:
             n = s[0]+s[1]
