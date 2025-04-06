@@ -15,6 +15,7 @@ class Piece(pygame.sprite.Sprite):
         self.allowed_moves = []
         self.capture_moves = []
         self.can_be_blocked = False
+        self.has_capture_moves = True
         
         pieces.add(self)
         
@@ -34,7 +35,7 @@ class Pawn(Piece):
         
         self.image = pygame.image.load(f'images/{color}_Pawn.png')
         self.color=color
-        
+        self.has_capture_moves = False
         
     def update_moveset(self):
         if self.color == 'w':
@@ -56,3 +57,13 @@ class Knight(Piece):
         self.color=color
         self.moveset = ' x x /x   x/  p  /x   x/ x x '
         self.can_be_blocked = True
+        self.cost = 3
+        
+class Queen(Piece):
+    def __init__(self, color='w'):
+        super().__init__()
+        
+        self.image = pygame.image.load(f'images/{color}_Queen.png')
+        self.color=color
+        self.moveset = 'x      x      x/ x     x     x /  x    x    x  /   x   x   x   /    x  x  x    /     x x x     /      xxx      /xxxxxxxpxxxxxxx/      xxx      /     x x x     /    x  x  x    /   x   x   x   /  x    x    x  / x     x     x /x      x      x/'
+        self.cost = 9

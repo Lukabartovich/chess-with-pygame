@@ -24,10 +24,13 @@ pawn2.locate((1, 3), size)
 knight = Knight('w')
 knight.locate((2, 3), size)
 
+queen = Queen('w')
+queen.locate((5, 5), size)
+
 selected_piece = None
 click = False
 
-move = 'b'
+move = 'w'
 
 run = True
 while run:
@@ -116,6 +119,7 @@ while run:
         selected_piece.allowed_moves = selected_positions
         selected_piece.capture_moves = capture_moves
         
+        blocking_pos = []
         if selected_piece.can_be_blocked==False:
             remove_directions = []
             for piece in pieces:
@@ -126,29 +130,31 @@ while run:
                     dir = (piece.position[0]-selected_piece.position[0], piece.position[1]-selected_piece.position[1])
                     dir = (-1 if dir[0] < 0 else 1, -1 if dir[1] < 0 else 1)
                     remove_directions.append((dir, piece.position))
+                    blocking_pos.append(piece.position)
                     
             for dir, values in remove_directions:
                 for pos in selected_positions:
-                    d = (pos[0]-selected_piece.position[0], pos[1]-selected_piece.position[1])
-                    d = (-1 if dir[0] < 0 else 1, -1 if dir[1] < 0 else 1)
-                    if d == dir:
-                        r = True
-                        if dir[0] == 1:
-                            if values[0] > pos[0]:
-                                r = False
-                        else:
-                            if values[0] < pos[0]:
-                                r = False
-                                
-                        if dir[1] == 1:
-                            if values[1] > pos[1]:
-                                r = False
-                        else:
-                            if values[1] < pos[1]:
-                                r = False
-                        if r:
-                            index = selected_positions.index(pos)
-                            selected_positions.pop(index)
+                    if pos not in blocking_pos:
+                        d = (pos[0]-selected_piece.position[0], pos[1]-selected_piece.position[1])
+                        d = (-1 if dir[0] < 0 else 1, -1 if dir[1] < 0 else 1)
+                        if d == dir:
+                            r = True
+                            if dir[0] == 1:
+                                if values[0] > pos[0]:
+                                    r = False
+                            else:
+                                if values[0] < pos[0]:
+                                    r = False
+                                    
+                            if dir[1] == 1:
+                                if values[1] > pos[1]:
+                                    r = False
+                            else:
+                                if values[1] < pos[1]:
+                                    r = False
+                            if r:
+                                index = selected_positions.index(pos)
+                                selected_positions.pop(index)
                     
         for s in selected_positions:
             n = s[0]+s[1]
