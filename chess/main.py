@@ -20,47 +20,52 @@ move = 'w'
 def load_game(string):
     global move
     
-    s, move = string.split(' ')
-    lines = s.split('/')
+    string, move = string.split(' ')
+    
+    st = ''
+    for char in string:
+        if char.isdigit():
+            n = int(char)
+            st += ' '*n
+        else:
+            st += char
+            
+    string = st
+    
+    lines = string.split('/')
     for i, line in enumerate(lines):
         skip = 0
         for j, char in enumerate(line):
-            if skip >0:
-                skip -= 1
-                continue
-            if char.isdigit():
-                skip = int(char)
-            else:
-                if char == 'p':
-                    piece = Pawn('b')
-                if char == 'b':
-                    piece = Bishop('b')
-                if char == 'n':
-                    piece = Knight('b')
-                if char == 'r':
-                    piece = Rook('b')
-                if char == 'q':
-                    piece = Queen('b')
-                if char == 'k':
-                    piece = King('b')
-                    
-                if char == 'P':
-                    piece = Pawn('w')
-                if char == 'B':
-                    piece = Bishop('w')
-                if char == 'N':
-                    piece = Knight('w')
-                if char == 'R':
-                    piece = Rook('w')
-                if char == 'Q':
-                    piece = Queen('w')
-                if char == 'K':
-                    piece = King('w')
-                    
+            if char == 'p':
+                piece = Pawn('b')
+            if char == 'b':
+                piece = Bishop('b')
+            if char == 'n':
+                piece = Knight('b')
+            if char == 'r':
+                piece = Rook('b')
+            if char == 'q':
+                piece = Queen('b')
+            if char == 'k':
+                piece = King('b')
                 
+            if char == 'P':
+                piece = Pawn('w')
+            if char == 'B':
+                piece = Bishop('w')
+            if char == 'N':
+                piece = Knight('w')
+            if char == 'R':
+                piece = Rook('w')
+            if char == 'Q':
+                piece = Queen('w')
+            if char == 'K':
+                piece = King('w')
+                    
+            if char != ' ':
                 piece.locate((j, i), size)
 
-load_game('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
+load_game('8/8/2ppp3/2pBp3/2ppp3/8/8/8 w')
 
 run = True
 while run:
@@ -163,11 +168,15 @@ while run:
                         dir[0] = -1
                     elif dir[0] > 0:
                         dir[0] = 1
+                    else:
+                        dir[0] = 0
                         
                     if dir[1] < 0:
                         dir[1] = -1
                     elif dir[1] > 0:
                         dir[1] = 1
+                    else:
+                        dir[1] = 0
                     remove_directions.append((dir, piece.position))
                     blocking_pos.append(piece.position)
                     
@@ -179,11 +188,15 @@ while run:
                             d[0] = -1
                         elif d[0] > 0:
                             d[0] = 1
+                        else:
+                            d[0] = 0
                             
                         if d[1] < 0:
                             d[1] = -1
                         elif d[1] > 0:
                             d[1] = 1
+                        else:
+                            d[1] = 0
                             
                         if d == dir:
                             r = True
@@ -224,9 +237,9 @@ while run:
                     c = 1 if n%2==0 else 0
                     
                     if c==1:
-                        color = (white_squares[0], white_squares[1], white_squares[2]+highlight)
+                        color = (white_squares[0]+highlight, white_squares[1], white_squares[2])
                     else:
-                        color = (black_squares[0], black_squares[1], black_squares[2]+highlight)
+                        color = (black_squares[0]+highlight, black_squares[1], black_squares[2])
                     
                     
                     rect = pygame.Rect(s[0]*size, s[1]*size, size, size)
