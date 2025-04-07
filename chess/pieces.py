@@ -1,6 +1,7 @@
 import pygame
 
 pieces = pygame.sprite.Group()
+kings = []
 
 class Piece(pygame.sprite.Sprite):
     def __init__(self):
@@ -94,3 +95,4 @@ class King(Piece):
         self.color=color
         self.moveset = 'xxx/xpx/xxx'
         self.cost = 10000
+        kings.append(self)
