@@ -17,7 +17,7 @@ click = False
     
 move = 'w'
 
-check = False
+check = []
 
 def load_game(string):
     global move
@@ -116,7 +116,7 @@ def calculate_allowed_moves(selected_piece):
     if selected_piece.can_be_blocked == False:
         dirs_blocking = []
         values = []
-        has_cp = bool(len(selected_piece.capture_moves)>0)
+        has_cp = bool(len(capture_moves)>0)
         for piece in pieces:
             if piece.position in selected_positions:
                 if piece.color == selected_piece.color or has_cp:
@@ -169,22 +169,30 @@ def calculate_allowed_moves(selected_piece):
         for piece in pieces:
             if piece.position in selected_positions and piece.color == selected_piece.color:
                 selected_positions.remove(piece.position)
+                
+    if len(capture_moves):
+        c = []
+        for moves in capture_moves:
+            for piece in pieces:
+                if piece.color != selected_piece.color and piece.position == moves:
+                    c.append(moves)
+        capture_moves = c
         
     return selected_positions, capture_moves
 
 def check_for_check():
-    check = False
+    check = []
     kings_positions = [king.position for king in kings]
     for piece in pieces:
         selected_positions, capture_moves = calculate_allowed_moves(piece)
         for king_pos in kings_positions:
             if king_pos in selected_positions or king_pos in capture_moves:
-                check = True
+                check.append(piece.position)
     return check
                     
 #basic: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w
 #testing: 2n1Q3/Ppppp3/pPP5/8/4P1p1/5B2/4p1P1/8 w
-load_game('rnb1kb1r/ppppp1pp/7n/3q1p2/4P3/3P4/PPP2PPP/RNBQKBNR w')
+load_game('rnb1kppr/ppppp2p/7n/3q4/4P3/3P1Q2/PPP2PPP/RNB1KBNR w')
 
 run = True
 while run:
@@ -222,7 +230,7 @@ while run:
             og_pos = selected_piece.position
             for moves in selected_positions:
                 selected_piece.position = moves
-                if not check_for_check():
+                if not check_for_check() or (not len(capture_moves) and selected_piece.position in check):
                     s.append(moves)
                 
             selected_piece.position = og_pos
