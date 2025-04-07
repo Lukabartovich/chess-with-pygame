@@ -11,6 +11,10 @@ clock = pygame.time.Clock()
 black_squares = (6, 148, 39)
 white_squares = (38, 201, 76)
 highlight = 100
+# highlight = (238, 245, 20)
+# capture_move_highlight = (245, 27, 52)
+# highlight_size = (size)//6
+
 
 selected_piece = None
 click = False
@@ -85,7 +89,7 @@ def make_dirs(piece, selected_piece):
     
     return dir
 
-def calculate_allowed_moves(selected_piece):
+def calculate_allowed_moves(selected_piece, defend = False):
     moves = selected_piece.moveset
     pos = selected_piece.position
     
@@ -119,7 +123,7 @@ def calculate_allowed_moves(selected_piece):
         has_cp = bool(len(capture_moves)>0)
         for piece in pieces:
             if piece.position in selected_positions:
-                if piece.color == selected_piece.color or has_cp:
+                if (not defend and piece.color == selected_piece.color) or has_cp:
                     selected_positions.remove(piece.position)
                     
                 dir = make_dirs(piece, selected_piece)
@@ -189,10 +193,22 @@ def check_for_check():
             if king_pos in selected_positions or king_pos in capture_moves:
                 check.append(piece.position)
     return check
-                    
+    
+def check_if_piece_defended(selected_piece):
+    defended = False
+    for piece in pieces:
+        if piece.color == selected_piece.color and piece != selected_piece:
+            selected_positions, capture_moves = calculate_allowed_moves(piece, defend=True)
+            for pos in selected_positions:
+                if pos[0] == selected_piece.position[0] and pos[1] == selected_piece.position[1]:
+                    defended = True
+            
+    return defended
+    
+    
 #basic: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w
 #testing: 2n1Q3/Ppppp3/pPP5/8/4P1p1/5B2/4p1P1/8 w
-load_game('rnb1kppr/ppppp2p/7n/3q4/4P3/3P1Q2/PPP2PPP/RNB1KBNR w')
+load_game('rnb1kppr/ppppp2p/7n/3q4/4P3/3P1Q2/1PP2QPP/RNB1KBNR w')
 
 run = True
 while run:
@@ -230,9 +246,19 @@ while run:
             og_pos = selected_piece.position
             for moves in selected_positions:
                 selected_piece.position = moves
-                if not check_for_check() or (not len(capture_moves) and selected_piece.position in check):
+                if not len(capture_moves) and selected_piece.position in check:
+                    if selected_piece.cost == 100:
+                        for piece in pieces:
+                            if piece.position == selected_piece.position and piece != selected_piece:
+                                
+                                if not check_if_piece_defended(piece):
+                                    s.append(moves)
+                    else:
+                        s.append(moves) 
+                elif not check_for_check():
+                    #TODO make sure that the king can't eat a piece if it's protected
                     s.append(moves)
-                
+
             selected_piece.position = og_pos
             selected_positions = s
             
@@ -242,6 +268,8 @@ while run:
         for s in selected_positions:
             n = s[0]+s[1]
             c = 1 if n%2==0 else 0
+            
+            # pygame.draw.circle(window, highlight, ((s[0]*size)+(size//2), (s[1]*size)+(size//2)), highlight_size)
             
             if c==1:
                 color = (white_squares[0], white_squares[1], white_squares[2]+highlight)
@@ -258,6 +286,8 @@ while run:
                     n = s[0]+s[1]
                     c = 1 if n%2==0 else 0
                     
+                    # pygame.draw.circle(window, capture_move_highlight, ((s[0]*size)+(size//2), (s[1]*size)+(size//2)), highlight_size)
+                    
                     if c==1:
                         color = (white_squares[0]+highlight, white_squares[1], white_squares[2])
                     else:
@@ -267,8 +297,7 @@ while run:
                     rect = pygame.Rect(s[0]*size, s[1]*size, size, size)
                     pygame.draw.rect(window, color, rect)
                     
-                    
-        #select a piece, check for captures and move pieces
+    #select a piece, check for captures and move pieces
     mouse_point = pygame.mouse.get_pos()
     if pygame.mouse.get_pressed()[0] and click == False:
         clicked = False
@@ -303,7 +332,7 @@ while run:
         click = True
     
     pieces.update()
-    pieces.draw(window)
+    pieces.draw(window) 
     
     clock.tick(180)
     pygame.display.update()

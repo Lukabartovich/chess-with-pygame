@@ -76,7 +76,7 @@ class Rook(Piece):
         self.image = pygame.image.load(f'images/{color}_Rook.png')
         self.color=color
         self.moveset = '       x       /       x       /       x       /       x       /       x       /       x       /       x       /xxxxxxxpxxxxxxx/       x       /       x       /       x       /       x       /       x       /       x       /       x       /'
-        self.cost = 3
+        self.cost = 8
         
 class Queen(Piece):
     def __init__(self, color='w'):
@@ -94,5 +94,5 @@ class King(Piece):
         self.image = pygame.image.load(f'images/{color}_King.png')
         self.color=color
         self.moveset = 'xxx/xpx/xxx'
-        self.cost = 10000
+        self.cost = 100
         kings.append(self)
