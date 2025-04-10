@@ -1,6 +1,7 @@
 import pygame
 import time
 from pieces import *
+import threading
 
 pygame.init()
 
@@ -20,6 +21,8 @@ selected_piece = None
 click = False
     
 move = 'w'
+lm = None
+lm2 = None
 
 check = []
 
@@ -205,10 +208,76 @@ def check_if_piece_defended(selected_piece):
             
     return defended
     
+def reload_piece(s_piece):
+    l = [s_piece]
+    p = s_piece.position
+    for piece in pieces:
+        if p in piece.allowed_moves or p in piece.capture_moves:
+            l.append(piece)
+            
+            
+    for s_piece in l:
+        selected_positions, capture_moves = calculate_allowed_moves(s_piece)
+        
+        
+        if check:
+            s = []
+            og_pos = s_piece.position
+            for moves in selected_positions:
+                s_piece.position = moves
+                if not len(capture_moves) and s_piece.position in check:
+                    if s_piece.cost == 100:
+                        for piece in pieces:
+                            if piece.position == s_piece.position and piece != s_piece:
+                                
+                                if not check_if_piece_defended(piece):
+                                    s.append(moves)
+                    else:
+                        s.append(moves) 
+                elif not check_for_check():
+                    #TODO make sure that the king can't eat a piece if it's protected
+                    s.append(moves)
+
+            s_piece.position = og_pos
+            selected_positions = s
+            
+        s_piece.allowed_moves = selected_positions
+        s_piece.capture_moves = capture_moves
+
+def reload_pieces():
+    for s_piece in pieces:
+        selected_positions, capture_moves = calculate_allowed_moves(s_piece)
+        
+        
+        if check:
+            s = []
+            og_pos = s_piece.position
+            for moves in selected_positions:
+                s_piece.position = moves
+                if not len(capture_moves) and s_piece.position in check:
+                    if s_piece.cost == 100:
+                        for piece in pieces:
+                            if piece.position == s_piece.position and piece != s_piece:
+                                
+                                if not check_if_piece_defended(piece):
+                                    s.append(moves)
+                    else:
+                        s.append(moves) 
+                elif not check_for_check():
+                    #TODO make sure that the king can't eat a piece if it's protected
+                    s.append(moves)
+
+            s_piece.position = og_pos
+            selected_positions = s
+            
+        s_piece.allowed_moves = selected_positions
+        s_piece.capture_moves = capture_moves
     
 #basic: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w
 #testing: 2n1Q3/Ppppp3/pPP5/8/4P1p1/5B2/4p1P1/8 w
 load_game('rnb1kppr/ppppp2p/7n/3q4/4P3/3P1Q2/1PP2QPP/RNB1KBNR w')
+
+reload_pieces()
 
 run = True
 while run:
@@ -237,35 +306,14 @@ while run:
     check = check_for_check()
     
     #check for allowed moves and capture moves and highlight them
+    if lm2 != lm:
+        lm2 = lm
+        print('reload moves')
+        
+        reload_piece(lm)
+        
     if selected_piece:
-        selected_positions, capture_moves = calculate_allowed_moves(selected_piece)
-        
-        
-        if check:
-            s = []
-            og_pos = selected_piece.position
-            for moves in selected_positions:
-                selected_piece.position = moves
-                if not len(capture_moves) and selected_piece.position in check:
-                    if selected_piece.cost == 100:
-                        for piece in pieces:
-                            if piece.position == selected_piece.position and piece != selected_piece:
-                                
-                                if not check_if_piece_defended(piece):
-                                    s.append(moves)
-                    else:
-                        s.append(moves) 
-                elif not check_for_check():
-                    #TODO make sure that the king can't eat a piece if it's protected
-                    s.append(moves)
-
-            selected_piece.position = og_pos
-            selected_positions = s
-            
-        selected_piece.allowed_moves = selected_positions
-        selected_piece.capture_moves = capture_moves
-                    
-        for s in selected_positions:
+        for s in selected_piece.allowed_moves:
             n = s[0]+s[1]
             c = 1 if n%2==0 else 0
             
@@ -280,7 +328,7 @@ while run:
             rect = pygame.Rect(s[0]*size, s[1]*size, size, size)
             pygame.draw.rect(window, color, rect)
 
-        for s in capture_moves:
+        for s in selected_piece.capture_moves:
             for piece in pieces:
                 if piece.position == s and piece.color != selected_piece.color:
                     n = s[0]+s[1]
@@ -324,6 +372,7 @@ while run:
                         move = 'b'
                     else:
                         move = 'w'
+                    lm = selected_piece
                 else:
                     pass
                     
@@ -336,6 +385,6 @@ while run:
     
     clock.tick(180)
     pygame.display.update()
-    #print(clock.get_fps())
+    print(clock.get_fps())
     
 pygame.quit()
